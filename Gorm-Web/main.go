@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"gorm.io/driver/mysql"
@@ -11,7 +12,7 @@ import (
 type User struct {
 	ID    uint   `gorm:"primaryKey"`
 	Name  string `gorm:"not null"`
-	Email string `gorm:"uniqueIndex"`
+	Email string `gorm:"type:varchar(100);uniqueIndex"`
 	Age   int
 }
 
@@ -61,7 +62,7 @@ func GetAllUsers(db *gorm.DB) ([]User, error) {
 
 func main() {
 	// 数据库连接字符串
-	dsn := "user:password@tcp(127.0.0.1:3306)/test?charset=utf8mb4&parseTime=True&loc=Local"
+	dsn := "root:123456@tcp(127.0.0.1:3306)/test111?charset=utf8mb4&parseTime=True&loc=Local"
 	// 连接数据库
 	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
 	if err != nil {
@@ -95,7 +96,7 @@ func main() {
 		}
 		user, err := ReadUser(db, userID)
 		if err != nil {
-			if err == gorm.ErrRecordNotFound {
+			if errors.Is(gorm.ErrRecordNotFound, err) {
 				c.JSON(404, gin.H{"error": "用户未找到"})
 			} else {
 				c.JSON(500, gin.H{"error": "获取用户失败"})
